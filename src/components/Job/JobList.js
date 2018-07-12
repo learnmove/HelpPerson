@@ -11,7 +11,10 @@ import CardActions from '@material-ui/core/CardActions';
 import Collapse from '@material-ui/core/Collapse';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+
 import NavigationIcon from '@material-ui/icons/Navigation';
+
 
 import Icon from '@material-ui/core/Icon';
 
@@ -37,6 +40,9 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import axios from 'axios'
+import swal from 'sweetalert';
+
+
 
 
 import Dialog from '@material-ui/core/Dialog';
@@ -44,7 +50,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import {fetchJobContent} from '../../api/api'
+import {fetchJobContent,applyJob} from '../../api/api'
 import queryString from 'query-string'
 
 import Snackbar from '@material-ui/core/Snackbar';
@@ -94,6 +100,7 @@ const styles = theme => ({
 class JobList extends React.Component {
 
   state = {
+    dialogType:null,
     openDialog:false,
     openSnackbar:false,
     expanded: false,
@@ -101,24 +108,49 @@ class JobList extends React.Component {
     success:true,
     isSelect:false
     ,data:{},
+    content:'老闆你好，希望能有參加面試的機會，謝謝',
     isLoading:false,
     cityValue:5,
+    applyLoading:false
    };
    constructor(props){
      super(props)
 
 
    }
+   async handleCoommitApply(){
+    this.setState({applyLoading:true})
+     try{
+      let message=await applyJob({
+        job_id:this.state.select.id,
+       content:this.state.content
+     })
+     swal(message.data.message)
+     this.setState({openDialog:false,applyLoading:false})
+     }catch(error){
+
+      this.setState({applyLoading:false})
+
+       swal(error.response.data.error)
+     }
+
+   }
   handleClickOpen = scroll => () => {
      this.setState({ openDialog: true, scroll });
    };
-
+  handleApply = (type,item) => {
+    if(!this.props.user){
+      this.setState({openDialog:true,dialogType:'alert'})
+      return
+    }
+     this.setState({ openDialog: true,dialogType:type,select:  Object.assign({},item)  });
+   };
    handleClose = () => {
      this.setState({ openDialog: false });
    };
    handleExpandClick = async (item) => {
 
-this.setState(state=>({isLoading:true,openDialog:true,select:{}}))
+this.setState(state=>({dialogType:'content',isLoading:true,openDialog:true,select:{}}))
 let {data:{data}}=await fetchJobContent(item.id)
 this.setState(state => ({isLoading:false ,select:  Object.assign({},item,{content:data.content}) }))
 
@@ -129,6 +161,10 @@ this.setState(state => ({isLoading:false ,select:  Object.assign({},item,{conten
   componentDidMount(){
     this.fetchJobList(this.props.location.search)
   }
+handleTextChange(e){
+this.setState({content:e.target.value})
+}
+
   handleTab(){
     this.fetchJobList()
 
@@ -169,7 +205,6 @@ if(page=='undefined')return
 
     this.props.requestFetchJobList(search)
   }
-
   render() {
     let { classes,data,isLoading,errors,success } = this.props;
         let p=new URLSearchParams(this.props.location.search)
@@ -180,7 +215,7 @@ if(value==-1){
   value=0
 }
     let cc=  data&&data.data.map(item=>{
-      const avatar_link=`/user/${item.user.id}`
+      const avatar_link=`/user/${item.user_id}`
       const handleExpandClick=this.handleExpandClick.bind(this,item)
 
         return (
@@ -191,7 +226,7 @@ if(value==-1){
           <Card className={classes.card} style={{maxWidth:'100%'}}>
             <CardHeader
               avatar={
-                <Avatar aria-label="Recipe" src={item.user.avatar} component={Link} to="/test" >
+                <Avatar aria-label="Recipe" src={item.user_avatar} component={Link} to={avatar_link} >
 
                 </Avatar>
               }
@@ -200,7 +235,7 @@ if(value==-1){
                   <MoreVertIcon />
                 </IconButton>
               }
-              title={item.user.name}
+              title={item.user_name}
               subheader={item.created_at}
             />
         {/*    <CardMedia
@@ -256,7 +291,7 @@ if(value==-1){
               <IconButton aria-label="Share">
                 <ShareIcon />
               </IconButton>
-              <Button  variant="contained" color="primary" aria-label="delete" className={classes.button}>
+              <Button onClick={this.handleApply.bind(this,"form",item)}  variant="contained" color="primary" aria-label="delete" className={classes.button}>
                     <NavigationIcon className={classes.extendedIcon} />
                     應徵
                   </Button>
@@ -381,13 +416,13 @@ onClick={this.handleTab}
         <Grid item xs={12} sm={12}  lg={2} xl={2} >
 s
         </Grid>
-        <Dialog
+     {this.state.dialogType=='content'?   <Dialog
           open={this.state.openDialog}
           onClose={this.handleClose}
           scroll={this.state.scroll}
           aria-labelledby="scroll-dialog-title"
         >
-          <DialogTitle id="scroll-dialog-title">{this.state.select.title&&this.state.select.title}</DialogTitle>
+        <DialogTitle id="scroll-dialog-title">{this.state.select.title&&this.state.select.title}</DialogTitle>
           <DialogContent>
             <DialogContentText>
 
@@ -402,8 +437,69 @@ s
               確定
             </Button>
           </DialogActions>
-        </Dialog>
+        </Dialog>:""}
+        {this.state.dialogType=='form'?<Dialog
+          open={this.state.openDialog}
+          onClose={this.handleClose}
+          scroll={this.state.scroll}
+          aria-labelledby="scroll-dialog-title"
+        >
 
+        <DialogTitle id="scroll-dialog-title">{this.state.select.title&&this.state.select.title}</DialogTitle>
+        
+        <DialogContent>
+            <DialogContentText>
+              描述你過往的經歷或經驗，讓老闆放心將工作交附給你
+            </DialogContentText>
+            <TextField
+            value={this.state.content}
+              autoFocus
+              multiline
+              rowsMax="4"
+              rows="5"
+              margin="dense"
+              id="name"
+              label="自我推薦信"
+              onChange={this.handleTextChange.bind(this)}
+              type="text"
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+        {this.state.applyLoading?<CircularProgress></CircularProgress>:           <Button onClick={this.handleCoommitApply.bind(this)} color="primary">
+              送出
+            </Button>}
+
+ 
+            <Button onClick={this.handleClose} color="primary">
+              確定
+            </Button>
+          </DialogActions>
+        </Dialog>:""}
+        {this.state.dialogType=='alert'?
+         <Dialog
+         open={this.state.openDialog}
+         onClose={this.handleClose}
+         aria-labelledby="alert-dialog-title"
+         aria-describedby="alert-dialog-description"
+       >
+         <DialogTitle id="alert-dialog-title">{"Use Google's location service?"}</DialogTitle>
+         <DialogContent>
+           <DialogContentText id="alert-dialog-description">
+             Let Google help apps determine location. This means sending anonymous location data to
+             Google, even when no apps are running.
+           </DialogContentText>
+         </DialogContent>
+         <DialogActions>
+           <Button onClick={this.handleClose} color="primary">
+             Disagree
+           </Button>
+           <Button onClick={this.handleClose} color="primary" autoFocus>
+             Agree
+           </Button>
+         </DialogActions>
+       </Dialog>
+        :""}
       </Grid>
 
     );
@@ -414,16 +510,16 @@ JobList.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-const mapStateToProps=({JobReducers:{isLoading,data,errors,success}})=>({
+const mapStateToProps=({JobReducers:{isLoading,data,errors,success},UserReducers:{data:{user}}})=>({
   isLoading,
   data,
   errors,
-  success
+  success,
+  user
 })
 const mapDispatchToProp=(dispatch)=>{
   return {
     requestFetchJobList:(data)=>dispatch(requestFetchJobList(data))
-
   }
 }
 export default compose(

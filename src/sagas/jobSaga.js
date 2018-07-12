@@ -6,14 +6,16 @@ import {fetchJobListSucess} from '../actions/jobAction'
 import {fetchJobListFailed} from '../actions/jobAction'
 
  export function *getJobList(){
+while(true){
+  const action=yield take('REQUST_FETCH_JOBLIST')
+  try{
+    const {data}= yield call(fetchJobList,action.data)
+    yield put(fetchJobListSucess(data))
+  }catch(e){
+    yield put(fetchJobListFailed(e.response.data))
 
-   const action=yield take('REQUST_FETCH_JOBLIST')
-   try{
-     const {data}= yield call(fetchJobList,action.data)
-     yield put(fetchJobListSucess(data))
-   }catch(e){
-     yield put(fetchJobListFailed(e.response.data))
+  }
+}
 
-   }
 
 }

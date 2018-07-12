@@ -5,7 +5,6 @@ import {REQUST_FETCH_JOBLIST,
 
 } from '../../constant/jobActionType'
 const JobReducers =(state={isLoading:false,data:null,success:true,errors:[]},action)=>{
-  console.log(action)
   switch (action.type){
     case REQUST_FETCH_JOBLIST:
     return {...state,isLoading:true}

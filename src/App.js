@@ -1,6 +1,6 @@
 
 import React from 'react';
-import  {Route,BrowserRouter,Switch} from 'react-router-dom'
+import  {Route,BrowserRouter,Switch,Redirect,Link} from 'react-router-dom'
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
@@ -8,12 +8,13 @@ import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
-import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import { connect } from 'react-redux'
+import AccountCircle from '@material-ui/icons/AccountCircle';
 
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
@@ -22,6 +23,14 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import JobList from './components/Job/JobList'
 import Test from './components/test'
+import {requestLogin} from './actions/userAction'
+
+import {compose }from 'redux'
+import GoogleLogin  from 'react-google-login';
+
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
+import FacebookLogin from 'react-facebook-login'
 
 const drawerWidth = 240;
 
@@ -108,10 +117,16 @@ const styles = theme => ({
 class PersistentDrawer extends React.Component {
   state = {
     open: false,
+    openMenu:false,
     anchor: 'left',
-    left:false
+    left:false,
+    anchorEl: null,
   };
-
+componentDidMount(){
+  if(localStorage.getItem('user')){
+    this.props.requestLogin()
+  }
+}
   handleDrawerOpen = () => {
     this.setState({ open: true });
   };
@@ -131,10 +146,23 @@ class PersistentDrawer extends React.Component {
        open:!this.state.open
      });
    };
+   handleMenu = (event) => {
+  this.setState({ openMenu:true,anchorEl: event.currentTarget });
+};
+handleClose = () => {
+  this.setState({ anchorEl: null,openMenu:false });
+};
+   handleLogin=(vendor)=>{
+
+     this.props.requestLogin(vendor)
+   }
   render() {
+
+
     const { classes, theme } = this.props;
     const { anchor, open } = this.state;
-
+    const avatar=this.props.data.user&&this.props.data.user.avatar
+   
     const drawer = (
       <SwipeableDrawer
         variant="persistent"
@@ -189,10 +217,52 @@ class PersistentDrawer extends React.Component {
                 <MenuIcon />
               </IconButton>
               <Typography variant="title" color="inherit" noWrap style={{flex:1}}>
-                日領現金
+                <Link to="/job" style={{textDecoration:'none'}}>日領現金</Link>
+
               </Typography>
-              <Button color="inherit" style={{backgroundColor:'#4267B2'}} size='small'>Facebook</Button>
-                <Button color="inherit" style={{backgroundColor:'#DD4B39',marginLeft:15,marginRight:15}} size='small'>Google</Button>
+
+{this.props.data.user?
+  <div>
+                 <IconButton
+                   aria-owns={open ? 'menu-appbar' : null}
+                   aria-haspopup="true"
+                   onClick={this.handleMenu}
+                   color="inherit"
+                 >
+                 <img style={{borderRadius:50}} src={avatar}></img>
+                 </IconButton>
+                 <Menu
+                   id="menu-appbar"
+                   anchorEl={this.state.anchorEl}
+                   anchorOrigin={{
+                     vertical: 'top',
+                     horizontal: 'right',
+                   }}
+                   transformOrigin={{
+                     vertical: 'top',
+                     horizontal: 'right',
+                   }}
+                   open={this.state.openMenu}
+                   onClose={this.handleClose}
+                 >
+                   <MenuItem onClick={this.handleClose}>個人檔案</MenuItem>
+                   <MenuItem onClick={this.handleClose}>我的投遞</MenuItem>
+                   <MenuItem onClick={this.handleClose}>我的招聘</MenuItem>
+                   <MenuItem onClick={this.handleClose}>我的訊息</MenuItem>
+
+                 </Menu>
+               </div>
+  :  <FacebookLogin
+    appId="1983046195052660"
+    fields="name,email,picture,birthday"
+    scope="public_profile, email, user_birthday"
+callback={(responseFacebook)=>{
+this.props.requestLogin(responseFacebook)
+}
+}
+textButton="facebook登錄"
+></FacebookLogin>}
+
 
 
             </Toolbar>
@@ -205,10 +275,11 @@ class PersistentDrawer extends React.Component {
               [classes[`contentShift-${anchor}`]]: open,
             })}
           >
-
             <div className={classes.drawerHeader} />
+
               <Switch>
-              <Route exact path="/" ></Route>
+
+              <Route exact path="/" component={JobList} ></Route>
               <Route exact path="/job" component={JobList} ></Route>
                 <Route exact path="/test" component={Test} ></Route>
 
@@ -228,5 +299,27 @@ PersistentDrawer.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
 };
+{/**
+  export default withStyles(styles, { withTheme: true })(PersistentDrawer);
+  **/}
 
-export default withStyles(styles, { withTheme: true })(PersistentDrawer);
+const mapStateToProps=({
+  UserReducers:{
+    isLoading,data,errors,success
+  }
+})=>({
+  isLoading,
+  data,
+  errors,
+  success
+})
+const mapDispatchToProp=(dispatch)=>{
+  return {
+    requestLogin:(vendor)=>dispatch(requestLogin(vendor))
+
+  }
+}
+export default compose(
+  withStyles(styles,{name:'PersistentDrawer', withTheme: true}),
+  connect(mapStateToProps,mapDispatchToProp))
+  (PersistentDrawer);

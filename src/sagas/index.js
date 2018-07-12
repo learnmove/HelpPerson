@@ -1,13 +1,13 @@
 import { take, put,takeLatest, call, fork, select, takeEvery, all } from 'redux-saga/effects'
 
 import  {getJobList} from './jobSaga'
+import  {watchLogin} from './userSaga'
+
 
 export default function* rootSaga(){
-  while(true){
+  yield  fork( getJobList)
 
-    yield all([
-      getJobList(),
-    ])
-  }
+  yield  fork( watchLogin )
+
 
 }
