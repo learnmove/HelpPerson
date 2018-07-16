@@ -3,13 +3,13 @@ export const host='http://localhost/laravel/recruit/public/api/'
 export const GetJob=`http://192.168.0.2/laravel/recruit/public/api/job`
 export const GetUser=`http://localhost/laravel/recruit/public/api/auth`
 export const apply=`apply`
+export const user=`user`
+
 // job
 export const fetchJobList=(data)=>{
-  console.log("dffffffffffffff")
   return axios.get(`${GetJob}${data}`)
 }
 export const fetchJobContent= async (id)=>{
-  console.log(id)
   var config = {
     headers: {'Access-Control-Allow-Origin': '*'}
 };
@@ -30,4 +30,18 @@ export const fetchLogin= async (data)=>{
     birthday,
 userID,name,email,url
   })
+}
+export const modifyUserDetailApi= async (data)=>{
+  console.log(data)
+  return axios.post(`${host}${user}`,{
+    content:data.content,
+    profession:data.profession,
+    experience:data.experience,
+    name:data.name,
+    school:data.school,
+  })
+}
+export const fetchUserData=async (id)=>{
+  console.log("dffffffffffffff")
+  return axios.get(`${host}${user}/${id}`)
 }

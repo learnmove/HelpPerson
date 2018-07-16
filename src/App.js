@@ -31,7 +31,8 @@ import GoogleLogin  from 'react-google-login';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import FacebookLogin from 'react-facebook-login'
-
+import Profile from './components/User/Profile'
+import MyProfile from './components/User/MyProfile'
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -245,7 +246,7 @@ handleClose = () => {
                    open={this.state.openMenu}
                    onClose={this.handleClose}
                  >
-                   <MenuItem onClick={this.handleClose}>個人檔案</MenuItem>
+                   <MenuItem component={Link} to={`/my/profile`} onClick={this.handleClose}>個人檔案</MenuItem>
                    <MenuItem onClick={this.handleClose}>我的投遞</MenuItem>
                    <MenuItem onClick={this.handleClose}>我的招聘</MenuItem>
                    <MenuItem onClick={this.handleClose}>我的訊息</MenuItem>
@@ -282,6 +283,8 @@ textButton="facebook登錄"
               <Route exact path="/" component={JobList} ></Route>
               <Route exact path="/job" component={JobList} ></Route>
                 <Route exact path="/test" component={Test} ></Route>
+                <Route exact path="/user/:id" component={Profile} ></Route>
+                <Route exact path="/my/profile" component={MyProfile} ></Route>
 
               </Switch>
 

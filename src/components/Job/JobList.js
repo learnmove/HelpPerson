@@ -128,10 +128,8 @@ class JobList extends React.Component {
      swal(message.data.message)
      this.setState({openDialog:false,applyLoading:false})
      }catch(error){
-
       this.setState({applyLoading:false})
 
-       swal(error.response.data.error)
      }
 
    }
