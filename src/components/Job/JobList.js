@@ -125,11 +125,11 @@ class JobList extends React.Component {
         job_id:this.state.select.id,
        content:this.state.content
      })
-     swal(message.data.message)
+     swal("投遞成功")
      this.setState({openDialog:false,applyLoading:false})
      }catch(error){
       this.setState({applyLoading:false})
-
+      swal("投遞失敗，可能重複投遞或已關閉職缺")
      }
 
    }
@@ -470,7 +470,7 @@ s
 
  
             <Button onClick={this.handleClose} color="primary">
-              確定
+              關閉
             </Button>
           </DialogActions>
         </Dialog>:""}
@@ -481,20 +481,17 @@ s
          aria-labelledby="alert-dialog-title"
          aria-describedby="alert-dialog-description"
        >
-         <DialogTitle id="alert-dialog-title">{"Use Google's location service?"}</DialogTitle>
+         <DialogTitle id="alert-dialog-title">{"很抱歉您未登錄"}</DialogTitle>
          <DialogContent>
            <DialogContentText id="alert-dialog-description">
-             Let Google help apps determine location. This means sending anonymous location data to
-             Google, even when no apps are running.
+            請登錄facebook帳戶
            </DialogContentText>
          </DialogContent>
          <DialogActions>
            <Button onClick={this.handleClose} color="primary">
-             Disagree
+             關閉
            </Button>
-           <Button onClick={this.handleClose} color="primary" autoFocus>
-             Agree
-           </Button>
+
          </DialogActions>
        </Dialog>
         :""}

@@ -1,7 +1,7 @@
 import axios from 'axios'
 export const host='http://localhost/laravel/recruit/public/api/'
-export const GetJob=`http://192.168.0.2/laravel/recruit/public/api/job`
-export const GetUser=`http://localhost/laravel/recruit/public/api/auth`
+export const GetJob=`${host}job`
+export const GetUser=`${host}auth`
 export const apply=`apply`
 export const user=`user`
 
@@ -14,6 +14,16 @@ export const fetchJobContent= async (id)=>{
     headers: {'Access-Control-Allow-Origin': '*'}
 };
   return axios.get(`${GetJob}/${id}`,{headers:{ Authorization:'aaa'}})
+}
+export const fetchAppliesList= async (query)=>{
+ 
+    return axios.get(`${host}${apply}${query}`)
+
+}
+export const fetchRecruitList= async (query)=>{
+ 
+  return axios.get(`${host}${apply}${query}&type=boss`)
+
 }
 export const applyJob= async ({job_id,content})=>{
  

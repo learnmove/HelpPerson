@@ -17,7 +17,7 @@ axios.interceptors.response.use(function (response) {
 }, function (error) {
   let errorMesage=error.response.data.error
   console.log(error.response)
-  if(errorMesage.indexOf('token')!=-1||errorMesage.indexOf('user')!=-1){
+  if(errorMesage.indexOf('token')!==-1||errorMesage.indexOf('user')!==-1){
     swal("您的登錄期限已過期，請從新登錄")
     localStorage.removeItem('user')
     window.location.reload()

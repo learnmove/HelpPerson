@@ -33,6 +33,10 @@ import Menu from '@material-ui/core/Menu';
 import FacebookLogin from 'react-facebook-login'
 import Profile from './components/User/Profile'
 import MyProfile from './components/User/MyProfile'
+import MyApply from './components/User/MyApply'
+import MyRecruit from './components/User/MyRecruit'
+
+
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -218,7 +222,15 @@ handleClose = () => {
                 <MenuIcon />
               </IconButton>
               <Typography variant="title" color="inherit" noWrap style={{flex:1}}>
-                <Link to="/job" style={{textDecoration:'none'}}>日領現金</Link>
+                <Link to="/job" style={{textDecoration:'none',
+                color:"#ffffff",
+                ":hover":{color:"#ffffff"},
+                ":visited":{color:"#ffffff"},
+                ":active":{color:"#ffffff"},
+                ":link":{color:"#ffffff"},
+
+
+              }}>8888求職網</Link>
 
               </Typography>
 
@@ -247,9 +259,9 @@ handleClose = () => {
                    onClose={this.handleClose}
                  >
                    <MenuItem component={Link} to={`/my/profile`} onClick={this.handleClose}>個人檔案</MenuItem>
-                   <MenuItem onClick={this.handleClose}>我的投遞</MenuItem>
-                   <MenuItem onClick={this.handleClose}>我的招聘</MenuItem>
-                   <MenuItem onClick={this.handleClose}>我的訊息</MenuItem>
+                   <MenuItem component={Link} to={`/my/apply`} >我的投遞</MenuItem>
+                   <MenuItem component={Link} to={`/my/recruit`}>我的招聘</MenuItem>
+                   <MenuItem component={Link} to={`/my/message`}>我的訊息</MenuItem>
 
                  </Menu>
                </div>
@@ -283,8 +295,11 @@ textButton="facebook登錄"
               <Route exact path="/" component={JobList} ></Route>
               <Route exact path="/job" component={JobList} ></Route>
                 <Route exact path="/test" component={Test} ></Route>
-                <Route exact path="/user/:id" component={Profile} ></Route>
+                <Route  path="/user/:id" component={Profile} ></Route>
                 <Route exact path="/my/profile" component={MyProfile} ></Route>
+                <Route exact path="/my/apply" component={MyApply} ></Route>
+                <Route exact path="/my/recruit" component={MyRecruit} ></Route>
+
 
               </Switch>
 
